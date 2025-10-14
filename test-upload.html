@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dion Document Upload</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #0078D4;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Upload a Document</h2>
+    <form id="uploadForm">
+      <label for="user_id">User ID</label>
+      <input type="number" name="user_id" id="user_id" required>
+
+      <label for="document_type">Document Type</label>
+      <input type="text" name="document_type" id="document_type" required>
+
+      <label for="notes">Notes</label>
+      <textarea name="notes" id="notes" rows="3"></textarea>
+
+      <label for="file">Choose File</label>
+      <input type="file" name="file" id="file" required>
+
+      <button type="submit">Upload</button>
+    </form>
+    <div id="uploadMessage"></div>
+  </div>
+  <script>
+  document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    try {
+      const response = await fetch('http://localhost:3000/api/upload-doc', {
+        method: 'POST',
+        body: formData
+      });
+
+      let result = {};
+      try {
+        result = await response.json();
+      } catch (jsonError) {
+        console.warn("Response is not valid JSON:", jsonError);
+      }
+
+      const messageBox = document.getElementById('uploadMessage');
+
+      if (response.ok) {
+        messageBox.textContent = "✅ Upload successful! Your document has been received.";
+        messageBox.style.color = "green";
+        messageBox.style.fontWeight = "bold";
+        messageBox.style.display = "block";
+      } else {
+        messageBox.textContent = "❌ Upload failed: " + (result.message || 'Unknown error');
+        messageBox.style.color = "red";
+        messageBox.style.fontWeight = "bold";
+        messageBox.style.display = "block";
+      }
+    } catch (err) {
+      console.error("Network or server error:", err);
+      const messageBox = document.getElementById('uploadMessage');
+      messageBox.textContent = "❌ Upload failed due to a network or server issue.";
+      messageBox.style.color = "red";
+      messageBox.style.fontWeight = "bold";
+      messageBox.style.display = "block";
+    }
+  });
+</script>
+
+</body>
+</html>
